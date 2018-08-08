@@ -1,0 +1,136 @@
+#!/usr/bin/env python
+import sys
+import argparse
+import asyncio
+import logging
+
+from asynccmd import Cmd
+import aiohttp
+
+from pyspcwebgw import SpcWebGateway
+from pyspcwebgw.const import AreaMode
+
+
+class SpcShell(Cmd):
+    def __init__(self, mode, spc):
+        super().__init__(mode=mode)
+        self._spc = spc
+        self.loop = None
+        self.prompt = "(spc) "
+        self.intro = "Welcome to the SPC Web Gateway Test Shell. Type help " \
+            "or ? to list commands.\n"
+
+    def _emptyline(self, line):
+        print("Type help or ? to list available commands.")
+
+    def start(self, loop=None):
+        self.loop = loop
+        super().cmdloop(loop)
+
+    def do_areas(self, arg):
+        "Print all available areas."
+        for area in self._spc.areas.values():
+            print(area)
+
+    def _print_zones(self, area_id):
+        for zone in self._spc.areas[area_id].zones:
+            print(zone)
+
+    def do_zones(self, arg):
+        "Print all zones for a given area. Example: zones 1"
+        if arg and arg not in self._spc.areas:
+            print('Invalid area id.')
+            return
+        if arg:
+            self._print_zones(arg)
+        else:
+            for id in self._spc.areas:
+                print('=== {} ==='.format(self._spc.areas[id]))
+                self._print_zones(id)
+
+    def do_full_set(self, arg):
+        "Full set the specified area. Example: full_set 1"
+        if arg not in self._spc.areas:
+            print("Invalid area id.")
+            return False
+        self._spc.areas[arg].mode = AreaMode.FULL_SET
+
+    def do_unset(self, arg):
+        "Unset the specified area. Example: unset 1"
+        if arg not in self._spc.areas:
+            print("Invalid area id.")
+            return False
+        self._spc.areas[arg].mode = AreaMode.UNSET
+
+    def do_part_set_a(self, arg):
+        "Part set (A) the specified area. Example: part_set_a 1"
+        if arg not in self._spc.areas:
+            print("Invalid area id.")
+            return False
+        self._spc.areas[arg].mode = AreaMode.PART_SET_A
+
+    def do_part_set_b(self, arg):
+        "Part set (B) the specified area. Example: part_set_b 1"
+        if arg not in self._spc.areas:
+            print("Invalid area id.")
+            return False
+        self._spc.areas[arg].mode = AreaMode.PART_SET_B
+
+
+async def callback(entity):
+    print('Update from SPC: ' + str(entity))
+
+
+async def setup_spc(loop, websession, kwargs):
+    spc = SpcWebGateway(loop, websession, **kwargs)
+
+    result = await spc.async_load_parameters()
+    if result is False:
+        print('Failed to setup SPC')
+        return False
+    spc.start()
+    print('Connected to SPC Web Gateway.')
+    return spc
+
+
+def main():
+    logging.basicConfig(level=logging.WARNING)
+
+    parser = argparse.ArgumentParser(description='SPC Web Gateway shell.')
+    parser.add_argument('api_url', help='SPC Web Gateway API URL, e.g. '
+                        'http://192.168.1.10:8088".')
+    parser.add_argument('ws_url', help='SPC Web Gateway websocket URL, e.g. '
+                        '"ws://192.168.1.10:8088".')
+    args = parser.parse_args()
+
+    kw = {
+        'api_url': args.api_url,
+        'ws_url': args.ws_url,
+        'async_callback': callback
+    }
+
+    if sys.platform == 'win32':
+        loop = asyncio.ProactorEventLoop()
+        mode = "Run"
+    else:
+        loop = asyncio.get_event_loop()
+        mode = "Reader"
+
+    websession = aiohttp.ClientSession(loop=loop)
+    spc = loop.run_until_complete(setup_spc(loop, websession, kw))
+
+    cmd = SpcShell(mode=mode, spc=spc)
+    cmd.start(loop)
+
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        spc.stop()
+        loop.run_until_complete(websession.close())
+        loop.stop()
+
+    loop.close()
+
+
+if __name__ == "__main__":
+    main()
