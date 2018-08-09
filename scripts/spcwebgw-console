@@ -125,7 +125,6 @@ def main():
     try:
         loop.run_forever()
     except KeyboardInterrupt:
-        spc.stop()
         loop.run_until_complete(websession.close())
         loop.stop()
 
