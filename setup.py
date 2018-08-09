@@ -28,7 +28,7 @@ setup(
     author_email='mbrrg@users.noreply.github.com',
     license='MIT',
     url='https://github.com/mbrrg/pyspcwebgw',
-    download_url='https://github.com/mbrrg/pyspcwebgw/archive/v',
+    download_url=DOWNLOAD_URL,
     install_requires=['aiohttp', 'asynccmd'],
     python_requires='>=3.5',
     scripts=['scripts/spcwebgw-console'],
