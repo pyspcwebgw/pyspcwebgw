@@ -22,6 +22,8 @@ setup(
     packages=['pyspcwebgw'],
     version='0.1.0',
     description='A Python library for communicating with SPC Web Gateway.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Martin Berg',
     author_email='mbrrg@users.noreply.github.com',
     license='MIT',
