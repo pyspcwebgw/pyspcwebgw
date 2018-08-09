@@ -13,14 +13,14 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 DOWNLOAD_URL = \
     'https://github.com/mbrrg/pyspcwebgw/archive/{}.zip'.format(VERSION)
 
 setup(
     name='pyspcwebgw',
     packages=['pyspcwebgw'],
-    version='0.1.0',
+    version=VERSION,
     description='A Python library for communicating with SPC Web Gateway.',
     long_description=long_description,
     long_description_content_type='text/markdown',
