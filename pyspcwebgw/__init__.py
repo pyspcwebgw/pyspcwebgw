@@ -43,7 +43,8 @@ class SpcWebGateway:
         """Fetch area and zone info from SPC to initialize."""
         zones = await self._async_get_data('zone')
         areas = await self._async_get_data('area')
-        # TODO: handle errors
+        if not zones or not areas:
+            return False
         self._load_parameters(areas, zones)
 
     async def change_mode(self, area, new_mode):
