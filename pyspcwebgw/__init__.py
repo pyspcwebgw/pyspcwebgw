@@ -31,6 +31,11 @@ class SpcWebGateway:
         """Retrieve all available areas."""
         return self._areas
 
+    @property
+    def zones(self):
+        """Retrieve all available zones."""
+        return self._zones
+
     def start(self):
         """Connect websocket to SPC Web Gateway."""
         self._websocket = AIOWSClient(loop=self._loop,
@@ -46,6 +51,7 @@ class SpcWebGateway:
         if not zones or not areas:
             return False
         self._load_parameters(areas, zones)
+        return True
 
     async def change_mode(self, area, new_mode):
         """Set/unset/part set an area."""
@@ -82,11 +88,14 @@ class SpcWebGateway:
         _LOGGER.debug("SIA code is %s for ID %s", sia_code, spc_id)
 
         if sia_code in Area.SUPPORTED_SIA_CODES:
-            entity = self._areas[spc_id]
+            entity = self._areas.get(spc_id, None)
         elif sia_code in Zone.SUPPORTED_SIA_CODES:
-            entity = self._zones[spc_id]
+            entity = self._zones.get(spc_id, None)
         else:
-            _LOGGER.error("Update for unregistered area/zone ID %s.", spc_id)
+            _LOGGER.debug("Unsupported SIA code %s.", sia_code)
+            return
+        if not entity:
+            _LOGGER.error("Received message for unregistered ID %s", spc_id)
             return
         entity.update(sia_message)
         if self._async_callback:
