@@ -17,6 +17,12 @@ areas = """{"status":"success","data":{"area":[{"id":"1","name":"House",
     "last_unset_time":"1483705808","last_unset_user_id":"9998",
     "last_unset_user_name":"Lisa"}]}}"""
 
+area_update = """{"status":"success","data":{"area":[{"id":"1","name":"Huset",
+    "mode":"3","last_set_time":"1534431659","last_set_user_id":"9998",
+    "last_set_user_name":"Lisa","last_unset_time":"1534435693",
+    "last_unset_user_id":"1","last_unset_user_name":"Pelle",
+    "last_alarm":"1534372056","not_ready_set":"1011"}]}}"""
+
 zones = """{"status":"success","data":{"zone":[{"id":"1","type":"3",
     "zone_name":"Kitchen smoke","area":"1","area_name":"House","input":"0",
     "logic_input":"0","status":"0","proc_state":"0","inhibit_allowed":"1",
@@ -26,6 +32,11 @@ zones = """{"status":"success","data":{"zone":[{"id":"1","type":"3",
     {"id":"5","type":"1","zone_name":"Front door","area":"1","area_name":
     "House","input":"1","logic_input":"0","status":"0","proc_state":"0",
     "inhibit_allowed":"1","isolate_allowed":"1"}]}}"""
+
+zone_update = """{"status":"success","data":{"zone":{"id":"3","type":"0",
+    "zone_name":"Garage PIR","area":"3","area_name":"Garage","input":"1",
+    "logic_input":"0","status":"0","proc_state":"0","inhibit_allowed":"1",
+    "isolate_allowed":"1"}}}"""
 
 
 @pytest.fixture
@@ -44,7 +55,9 @@ async def spc(event_loop, session):
     """HTTP client mock for areas and zones."""
     with aioresponses() as m:
         m.get('http://localhost/spc/area', body=areas)
+        m.get('http://localhost/spc/area/1', body=area_update)
         m.get('http://localhost/spc/zone', body=zones)
+        m.get('http://localhost/spc/zone/3', body=zone_update)
         m.put('http://localhost/spc/area/1/set',
               payload={'status': 'success'})
         m.put('http://localhost/spc/area/1/unset',
@@ -74,31 +87,16 @@ def test_parse_area_zones(spc):
 
 
 @pytest.mark.asyncio
-async def test_area_mode_update(spc):
-    msg = {'data': {'sia': {'sia_code': 'CG', 'sia_address': '1'}}}
-    assert spc.spc.areas['1'].mode == AreaMode.UNSET
-    await spc.spc._async_ws_handler(data=msg)
-    assert spc.spc.areas['1'].mode == AreaMode.FULL_SET
-
-
-@pytest.mark.asyncio
 async def test_area_mode_update_callback(spc, event_loop):
     async def callback(entity):
-        if not isinstance(entity, Area) or entity.mode != AreaMode.PART_SET_A:
+        if not isinstance(entity, Area) or entity.mode != AreaMode.FULL_SET:
             pytest.fail('invalid entity in callback')
 
-    msg = {'data': {'sia': {'sia_code': 'NL', 'sia_address': '3'}}}
-    assert spc.spc.areas['3'].mode == AreaMode.UNSET
+    msg = {'data': {'sia': {'sia_code': 'CG', 'sia_address': '1'}}}
+    assert spc.spc.areas['1'].mode == AreaMode.UNSET
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
-
-
-@pytest.mark.asyncio
-async def test_zone_input_update(spc):
-    msg = {'data': {'sia': {'sia_code': 'ZO', 'sia_address': '3'}}}
-    assert spc.spc.areas['3'].zones[0].input == ZoneInput.CLOSED
-    await spc.spc._async_ws_handler(data=msg)
-    assert spc.spc.areas['3'].zones[0].input == ZoneInput.OPEN
+    assert ('GET', 'http://localhost/spc/area/1') in spc.mock.requests
 
 
 @pytest.mark.asyncio
@@ -111,6 +109,7 @@ async def test_zone_input_update_callback(spc, event_loop):
     assert spc.spc.areas['3'].zones[0].input == ZoneInput.CLOSED
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
+    assert ('GET', 'http://localhost/spc/zone/3') in spc.mock.requests
 
 
 @pytest.mark.asyncio

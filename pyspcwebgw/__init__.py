@@ -48,9 +48,18 @@ class SpcWebGateway:
         """Fetch area and zone info from SPC to initialize."""
         zones = await self._async_get_data('zone')
         areas = await self._async_get_data('area')
+
         if not zones or not areas:
             return False
-        self._load_parameters(areas, zones)
+
+        for spc_area in areas:
+            area = Area(self, spc_area)
+            area_zones = [Zone(area, z) for z in zones
+                          if z['area'] == spc_area['id']]
+            area.zones = area_zones
+            self._areas[area.id] = area
+            self._zones.update({z.id: z for z in area_zones})
+
         return True
 
     async def change_mode(self, area, new_mode):
@@ -64,20 +73,15 @@ class SpcWebGateway:
             AreaMode.PART_SET_B: 'set_b',
             AreaMode.FULL_SET: 'set'
         }
+        if isinstance(area, Area):
+            area_id = area.id
+        else:
+            area_id = area
+
         url = urljoin(self._api_url, "spc/area/{area_id}/{command}".format(
-            area_id=area.id, command=AREA_MODE_COMMAND_MAP[new_mode]))
+            area_id=area_id, command=AREA_MODE_COMMAND_MAP[new_mode]))
 
         return await async_request(self._session.put, url)
-
-    def _load_parameters(self, areas, zones):
-        """Populate zone and area collections."""
-        for spc_area in areas:
-            area = Area(self, spc_area)
-            area_zones = [Zone(area, z) for z in zones
-                          if z['area'] == spc_area['id']]
-            area.zones = area_zones
-            self._areas[area.id] = area
-            self._zones.update({z.id: z for z in area_zones})
 
     async def _async_ws_handler(self, data):
         """Process incoming websocket message."""
@@ -89,22 +93,37 @@ class SpcWebGateway:
 
         if sia_code in Area.SUPPORTED_SIA_CODES:
             entity = self._areas.get(spc_id, None)
+            resource = 'area'
         elif sia_code in Zone.SUPPORTED_SIA_CODES:
             entity = self._zones.get(spc_id, None)
+            resource = 'zone'
         else:
-            _LOGGER.debug("Unsupported SIA code %s.", sia_code)
+            _LOGGER.debug("Not interested in SIA code %s", sia_code)
             return
         if not entity:
             _LOGGER.error("Received message for unregistered ID %s", spc_id)
             return
-        entity.update(sia_message)
+
+        data = await self._async_get_data(resource, entity.id)
+        entity.update(data)
+
         if self._async_callback:
             ensure_future(self._async_callback(entity))
 
-    async def _async_get_data(self, resource):
+    async def _async_get_data(self, resource, id=None):
         """Get the data from the resource."""
-        url = urljoin(self._api_url, "spc/{}".format(resource))
+        if id:
+            url = urljoin(self._api_url, "spc/{}/{}".format(resource, id))
+        else:
+            url = urljoin(self._api_url, "spc/{}".format(resource))
         data = await async_request(self._session.get, url)
         if not data:
             return False
+        if id and isinstance(data['data'][resource], list):
+            # for some reason the gateway returns an array with a single
+            # element for areas but not for zones...
+            return data['data'][resource][0]
+        elif id:
+            return data['data'][resource]
+
         return [item for item in data['data'][resource]]

@@ -1,5 +1,3 @@
-import pytest
-
 from pyspcwebgw import Zone
 from pyspcwebgw.const import ZoneType, ZoneStatus, ZoneInput
 
@@ -51,16 +49,3 @@ def test_parse_details():
     assert zone.type == ZoneType.ENTRY_EXIT
     assert zone.input == ZoneInput.OPEN
     assert zone.status == ZoneStatus.OK
-
-
-@pytest.mark.parametrize("sia_code,input", [
-    ('ZO', ZoneInput.OPEN),
-    ('ZC', ZoneInput.CLOSED),
-    ('ZX', ZoneInput.SHORT),
-    ('ZD', ZoneInput.DISCONNECTED)
-])
-def test_mode_update(sia_code, input):
-    zone = Zone(area=None, spc_zone=ZONES[0])
-    msg = {'sia_code': sia_code, 'sia_address': '1'}
-    zone.update(msg)
-    assert zone.input == input

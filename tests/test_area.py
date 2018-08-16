@@ -1,5 +1,3 @@
-import pytest
-
 from pyspcwebgw import Area
 from pyspcwebgw.const import AreaMode
 
@@ -33,6 +31,7 @@ def test_parse_details():
     area = Area(gateway=None, spc_area=AREA_DEF_1)
     assert area.name == 'House'
     assert area.mode == AreaMode.FULL_SET
+
     area = Area(gateway=None, spc_area=AREA_DEF_2)
     assert area.name == 'Garage'
     assert area.mode == AreaMode.UNSET
@@ -41,19 +40,6 @@ def test_parse_details():
 def test_last_changed_by_depends_on_mode():
     area = Area(gateway=None, spc_area=AREA_DEF_1)
     assert area.last_changed_by == 'Pelle'
+
     area = Area(gateway=None, spc_area=AREA_DEF_2)
     assert area.last_changed_by == 'Lisa'
-
-
-@pytest.mark.parametrize("sia_code,state", [
-    ('NL', AreaMode.PART_SET_A),
-    ('CG', AreaMode.FULL_SET),
-    ('OG', AreaMode.UNSET)
-])
-def test_mode_update(sia_code, state):
-    area = Area(gateway=None, spc_area=AREA_DEF_1)
-    msg = {'sia_code': sia_code, 'sia_address': '1',
-           'description': 'House¦Sam¦1'}
-    area.update(msg)
-    assert area.mode == state
-    assert area.last_changed_by == 'Sam'
