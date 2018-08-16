@@ -105,7 +105,7 @@ class SpcWebGateway:
             return
 
         data = await self._async_get_data(resource, entity.id)
-        entity.update(data)
+        entity.update(data, sia_code)
 
         if self._async_callback:
             ensure_future(self._async_callback(entity))

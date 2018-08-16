@@ -100,6 +100,18 @@ async def test_area_mode_update_callback(spc, event_loop):
 
 
 @pytest.mark.asyncio
+async def test_area_alarm_triggered(spc, event_loop):
+    async def callback(entity):
+        if not isinstance(entity, Area) or not entity.verified_alarm:
+            pytest.fail('invalid entity in callback')
+
+    msg = {'data': {'sia': {'sia_code': 'BV', 'sia_address': '1'}}}
+    assert not spc.spc.areas['1'].verified_alarm
+    spc.spc._async_callback = callback
+    await spc.spc._async_ws_handler(data=msg)
+
+
+@pytest.mark.asyncio
 async def test_zone_input_update_callback(spc, event_loop):
     async def callback(entity):
         if not isinstance(entity, Zone) or entity.input != ZoneInput.OPEN:

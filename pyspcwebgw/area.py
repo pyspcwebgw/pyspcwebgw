@@ -14,6 +14,7 @@ class Area:
         self._gateway = gateway
         self._id = spc_area['id']
         self._name = spc_area['name']
+        self._verified_alarm = False
         self.zones = None
 
         self.update(spc_area)
@@ -32,6 +33,10 @@ class Area:
         return self._name
 
     @property
+    def verified_alarm(self):
+        return self._verified_alarm
+
+    @property
     def mode(self):
         return self._mode
 
@@ -39,10 +44,11 @@ class Area:
     def last_changed_by(self):
         return self._last_changed_by
 
-    def update(self, spc_area):
+    def update(self, spc_area, sia_code=None):
         _LOGGER.debug("Update area %s", self.id)
 
         self._mode = _load_enum(AreaMode, spc_area['mode'])
+        self._verified_alarm = sia_code == 'BV'
         if self._mode == AreaMode.UNSET:
             self._last_changed_by = spc_area.get('last_unset_user_name', 'N/A')
         else:
