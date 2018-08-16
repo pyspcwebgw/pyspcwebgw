@@ -53,28 +53,37 @@ class SpcShell(Cmd):
         if arg not in self._spc.areas:
             print("Invalid area id.")
             return False
-        self._spc.areas[arg].mode = AreaMode.FULL_SET
+        asyncio.ensure_future(self._spc.change_mode(arg, AreaMode.FULL_SET))
 
     def do_unset(self, arg):
         "Unset the specified area. Example: unset 1"
         if arg not in self._spc.areas:
             print("Invalid area id.")
             return False
-        self._spc.areas[arg].mode = AreaMode.UNSET
+        asyncio.ensure_future(self._spc.change_mode(arg, AreaMode.UNSET))
 
     def do_part_set_a(self, arg):
         "Part set (A) the specified area. Example: part_set_a 1"
         if arg not in self._spc.areas:
             print("Invalid area id.")
             return False
-        self._spc.areas[arg].mode = AreaMode.PART_SET_A
+        self._spc.change_mode(arg, AreaMode.PART_SET_A)
 
     def do_part_set_b(self, arg):
         "Part set (B) the specified area. Example: part_set_b 1"
         if arg not in self._spc.areas:
             print("Invalid area id.")
             return False
-        self._spc.areas[arg].mode = AreaMode.PART_SET_B
+        self._spc.change_mode(arg, AreaMode.PART_SET_B)
+
+    def do_debug(self, arg):
+        "Toggle debug logging. Example: debug"
+        if logging.getLogger().level != logging.DEBUG:
+            print("Debug mode enabled.")
+            logging.getLogger().setLevel(logging.DEBUG)
+        else:
+            print("Debug mode disabled.")
+            logging.getLogger().setLevel(logging.WARNING)
 
 
 async def callback(entity):
