@@ -13,7 +13,7 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-VERSION = '0.2.0'
+VERSION = '0.3.0'
 DOWNLOAD_URL = \
     'https://github.com/mbrrg/pyspcwebgw/archive/{}.zip'.format(VERSION)
 
@@ -39,4 +39,3 @@ setup(
         'Topic :: Home Automation'
     ],
 )
-
