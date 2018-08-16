@@ -22,3 +22,4 @@ Examples of available commands in the test shell:
 - ```full_set```. Full set an area.
 - ```part_set_x```. Part set x an area.
 - ```unset```. Unset an area.
+- ```debug```. Toggle debug output.
