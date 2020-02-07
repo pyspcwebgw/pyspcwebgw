@@ -1,14 +1,15 @@
 import logging
 
-from pyspcwebgw.const import AreaMode
-from pyspcwebgw.utils import _load_enum
+from .const import AreaMode
+from .utils import _load_enum
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class Area:
     """Represents and SPC alarm system area."""
-    SUPPORTED_SIA_CODES = ('CG', 'NL', 'OG', 'BV')
+    SUPPORTED_SIA_CODES_ONE_AREAID = ('CG', 'NL', 'OG', 'BV')
+    SUPPORTED_SIA_CODES_ALL_AREAS = ('CL', 'OP')
 
     def __init__(self, gateway, spc_area):
         self._gateway = gateway
@@ -16,6 +17,7 @@ class Area:
         self._name = spc_area['name']
         self._verified_alarm = False
         self.zones = None
+        self._mode = ''
 
         self.update(spc_area)
 
@@ -46,10 +48,22 @@ class Area:
 
     def update(self, spc_area, sia_code=None):
         _LOGGER.debug("Update area %s", self.id)
-
-        self._mode = _load_enum(AreaMode, spc_area['mode'])
+        
+        """Set specific bool"""
         self._verified_alarm = sia_code == 'BV'
-        if self._mode == AreaMode.UNSET:
-            self._last_changed_by = spc_area.get('last_unset_user_name', 'N/A')
+        
+        """Update Area mode if changed"""
+        newMode = _load_enum(AreaMode, spc_area['mode'])
+        if self._mode == newMode:
+            _LOGGER.debug("No area mode change")
         else:
-            self._last_changed_by = spc_area.get('last_set_user_name', 'N/A')
+            self._mode = newMode
+            if self._mode == AreaMode.UNSET:
+                self._last_changed_by = spc_area.get('last_unset_user_name', 'N/A')
+                _LOGGER.debug("unset")
+            elif self._mode == AreaMode.FULL_SET:
+                self._last_changed_by = spc_area.get('last_set_user_name', 'N/A')
+                _LOGGER.debug("set")
+            else:
+                self._last_changed_by = 'N/A'
+                _LOGGER.debug("part_set")

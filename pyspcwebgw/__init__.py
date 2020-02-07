@@ -90,10 +90,25 @@ class SpcWebGateway:
         sia_code = sia_message['sia_code']
 
         _LOGGER.debug("SIA code is %s for ID %s", sia_code, spc_id)
-
-        if sia_code in Area.SUPPORTED_SIA_CODES:
+        
+        if sia_code in Area.SUPPORTED_SIA_CODES_ALL_AREAS:
+            """spc_id = not area ID, so we must loop over all areas"""
+            for my_spc_area in self._areas:
+                entity = self._areas.get(my_spc_area, None)
+                resource = 'area'
+                if not entity:
+                    _LOGGER.error("Received message for unregistered ID %s", my_spc_area)
+                    return
+                data = await self._async_get_data(resource, entity.id)
+                entity.update(data, sia_code)
+                if self._async_callback:
+                    ensure_future(self._async_callback(entity))
+            return
+        
+        elif sia_code in Area.SUPPORTED_SIA_CODES_ONE_AREAID:
             entity = self._areas.get(spc_id, None)
             resource = 'area'
+
         elif sia_code in Zone.SUPPORTED_SIA_CODES:
             entity = self._zones.get(spc_id, None)
             resource = 'zone'
@@ -103,10 +118,10 @@ class SpcWebGateway:
         if not entity:
             _LOGGER.error("Received message for unregistered ID %s", spc_id)
             return
-
+        
+        """ Set and update for one area"""
         data = await self._async_get_data(resource, entity.id)
         entity.update(data, sia_code)
-
         if self._async_callback:
             ensure_future(self._async_callback(entity))
 

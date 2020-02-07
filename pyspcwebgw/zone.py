@@ -1,7 +1,7 @@
 import logging
 
-from pyspcwebgw.const import ZoneInput, ZoneType, ZoneStatus
-from pyspcwebgw.utils import _load_enum
+from .const import ZoneInput, ZoneType, ZoneStatus
+from .utils import _load_enum
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,7 +49,12 @@ class Zone:
 
     def update(self, spc_zone, sia_code=None):
         _LOGGER.debug("Update zone %s", self.id)
-
-        self._input = _load_enum(ZoneInput, spc_zone['input'])
+        
         self._type = _load_enum(ZoneType, spc_zone['type'])
         self._status = _load_enum(ZoneStatus, spc_zone['status'])
+        
+        """Sanity check and override too short opening time if necessary"""
+        if sia_code == 'ZO' and spc_zone['input'] == '0':
+            self._input = _load_enum(ZoneInput, '1')
+        else:
+            self._input = _load_enum(ZoneInput, spc_zone['input'])
