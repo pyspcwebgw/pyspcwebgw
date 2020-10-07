@@ -4,6 +4,7 @@ import asyncio
 import aiohttp
 import pytest
 from aioresponses import aioresponses
+from aioresponses.compat import URL
 
 from pyspcwebgw import SpcWebGateway, Area, Zone
 from pyspcwebgw.const import AreaMode, ZoneInput
@@ -96,7 +97,7 @@ async def test_area_mode_update_callback(spc, event_loop):
     assert spc.spc.areas['1'].mode == AreaMode.UNSET
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
-    assert ('GET', 'http://localhost/spc/area/1') in spc.mock.requests
+    assert ('GET', URL('http://localhost/spc/area/1')) in spc.mock.requests
 
 
 @pytest.mark.asyncio
@@ -121,7 +122,7 @@ async def test_zone_input_update_callback(spc, event_loop):
     assert spc.spc.areas['3'].zones[0].input == ZoneInput.CLOSED
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
-    assert ('GET', 'http://localhost/spc/zone/3') in spc.mock.requests
+    assert ('GET', URL('http://localhost/spc/zone/3')) in spc.mock.requests
 
 
 @pytest.mark.asyncio
@@ -134,4 +135,4 @@ async def test_zone_input_update_callback(spc, event_loop):
 async def test_change_area_mode(spc, url_part, mode):
     await spc.spc.change_mode(spc.spc.areas['1'], mode)
     url = 'http://localhost/spc/area/1/{}'.format(url_part)
-    assert ('PUT', url) in spc.mock.requests
+    assert ('PUT', URL(url)) in spc.mock.requests
