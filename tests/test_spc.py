@@ -4,9 +4,17 @@ import asyncio
 import aiohttp
 import pytest
 from aioresponses import aioresponses
+from aioresponses.compat import URL
 
 from pyspcwebgw import SpcWebGateway, Area, Zone
 from pyspcwebgw.const import AreaMode, ZoneInput
+
+
+info = """{"status":"success","data":{"panel":{"cfgtime": "1593425759",
+    "device-id": "1", "hw_ver_major": "1",
+    "hw_ver_minor": "4", "hw_ver_vds": "0", "license_key": "ABC123", "sn":
+    "DEADBEEF", "type": "SPC4000", "variant": "4300",
+    "version": "3.8.5 - R.31629"}}}"""
 
 areas = """{"status":"success","data":{"area":[{"id":"1","name":"House",
     "mode":"0","last_set_time":"1485759851","last_set_user_id":"1",
@@ -54,6 +62,7 @@ async def spc(event_loop, session):
 
     """HTTP client mock for areas and zones."""
     with aioresponses() as m:
+        m.get('http://localhost/spc/panel', body=info)
         m.get('http://localhost/spc/area', body=areas)
         m.get('http://localhost/spc/area/1', body=area_update)
         m.get('http://localhost/spc/zone', body=zones)
@@ -96,7 +105,7 @@ async def test_area_mode_update_callback(spc, event_loop):
     assert spc.spc.areas['1'].mode == AreaMode.UNSET
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
-    assert ('GET', 'http://localhost/spc/area/1') in spc.mock.requests
+    assert ('GET', URL('http://localhost/spc/area/1')) in spc.mock.requests
 
 
 @pytest.mark.asyncio
@@ -121,7 +130,7 @@ async def test_zone_input_update_callback(spc, event_loop):
     assert spc.spc.areas['3'].zones[0].input == ZoneInput.CLOSED
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
-    assert ('GET', 'http://localhost/spc/zone/3') in spc.mock.requests
+    assert ('GET', URL('http://localhost/spc/zone/3')) in spc.mock.requests
 
 
 @pytest.mark.asyncio
@@ -134,4 +143,4 @@ async def test_zone_input_update_callback(spc, event_loop):
 async def test_change_area_mode(spc, url_part, mode):
     await spc.spc.change_mode(spc.spc.areas['1'], mode)
     url = 'http://localhost/spc/area/1/{}'.format(url_part)
-    assert ('PUT', url) in spc.mock.requests
+    assert ('PUT', URL(url)) in spc.mock.requests
