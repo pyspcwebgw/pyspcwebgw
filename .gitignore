@@ -17,6 +17,7 @@ venv/
 
 # Folders
 dist/
+build/
 
 # Python setuptools
 .cache
@@ -25,6 +26,10 @@ dist/
 # Unit test / coverage reports
 .coverage
 .tox
+.pytest_cache/
 
 # Emacs backup files
 *~
+
+# misc
+.DS_Store
