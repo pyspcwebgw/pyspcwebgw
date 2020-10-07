@@ -9,6 +9,13 @@ from aioresponses.compat import URL
 from pyspcwebgw import SpcWebGateway, Area, Zone
 from pyspcwebgw.const import AreaMode, ZoneInput
 
+
+info = """{"status":"success","data":{"panel":{"cfgtime": "1593425759",
+    "device-id": "1", "hw_ver_major": "1",
+    "hw_ver_minor": "4", "hw_ver_vds": "0", "license_key": "ABC123", "sn":
+    "DEADBEEF", "type": "SPC4000", "variant": "4300",
+    "version": "3.8.5 - R.31629"}}}"""
+
 areas = """{"status":"success","data":{"area":[{"id":"1","name":"House",
     "mode":"0","last_set_time":"1485759851","last_set_user_id":"1",
     "last_set_user_name":"Pelle","last_unset_time":"1485800564",
@@ -55,6 +62,7 @@ async def spc(event_loop, session):
 
     """HTTP client mock for areas and zones."""
     with aioresponses() as m:
+        m.get('http://localhost/spc/panel', body=info)
         m.get('http://localhost/spc/area', body=areas)
         m.get('http://localhost/spc/area/1', body=area_update)
         m.get('http://localhost/spc/zone', body=zones)
