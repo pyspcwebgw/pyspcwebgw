@@ -8,7 +8,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class Area:
     """Represents and SPC alarm system area."""
-    SUPPORTED_SIA_CODES = ('CG', 'NL', 'OG', 'BV')
+    SUPPORTED_SIA_CODES = ('CG', 'NL', 'OG', 'BV', 'OQ')
 
     def __init__(self, gateway, spc_area):
         self._gateway = gateway
