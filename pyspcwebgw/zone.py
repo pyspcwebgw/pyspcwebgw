@@ -12,7 +12,7 @@ class Zone:
                            'BB', 'BU', 'BR', 'BC')
 
     def __init__(self, area, spc_zone):
-        self._id = spc_zone['id']
+        self._id = spc_zone.get('id',spc_zone.get('zone_id'))
         self._name = spc_zone['zone_name']
         self._area = area
 

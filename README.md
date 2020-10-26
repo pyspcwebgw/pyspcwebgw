@@ -23,3 +23,9 @@ Examples of available commands in the test shell:
 - ```part_set_x```. Part set x an area.
 - ```unset```. Unset an area.
 - ```debug```. Toggle debug output.
+
+## Flex Gateway
+
+While initially written for SPC Web Gateway you can use this for SPC Flex Gateway as well.
+
+There is a (big!) security caveat though, you can't enable login for `get_user` in the Flex Gateway `config.xml`.

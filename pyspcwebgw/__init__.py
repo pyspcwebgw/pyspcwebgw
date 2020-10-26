@@ -61,8 +61,7 @@ class SpcWebGateway:
 
         for spc_area in areas:
             area = Area(self, spc_area)
-            area_zones = [Zone(area, z) for z in zones
-                          if z['area'] == spc_area['id']]
+            area_zones = [Zone(area, z) for z in zones if (z.get('area',False) == spc_area.get('id',True) or z.get('area_id',False) == spc_area.get('area_id',True))]
             area.zones = area_zones
             self._areas[area.id] = area
             self._zones.update({z.id: z for z in area_zones})
@@ -92,7 +91,7 @@ class SpcWebGateway:
 
     async def _async_ws_handler(self, data):
         """Process incoming websocket message."""
-        sia_message = data['data']['sia']
+        sia_message = data['data'].get('sia',data['data'].get('event'))
         spc_id = sia_message['sia_address']
         sia_code = sia_message['sia_code']
 
@@ -124,8 +123,18 @@ class SpcWebGateway:
         else:
             url = urljoin(self._api_url, "spc/{}".format(resource))
         data = await async_request(self._session.get, url)
+
         if not data:
             return False
+
+        flexgw_resources= {
+            "panel": "panel_summary",
+            "zone": "zone_status",
+            "area": "area_status",
+        }
+        if not data['data'].get(resource):
+          resource=flexgw_resources.get(resource, resource)
+
         if id and isinstance(data['data'][resource], list):
             # for some reason the gateway returns an array with a single
             # element for areas but not for zones...
