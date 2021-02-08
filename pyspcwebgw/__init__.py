@@ -21,10 +21,16 @@ class SpcWebGateway:
         self._session = session
         self._api_url = api_url
         self._ws_url = ws_url
+        self._info = None
         self._areas = {}
         self._zones = {}
         self._websocket = None
         self._async_callback = async_callback
+
+    @property
+    def info(self):
+        """Retrieve basic panel info."""
+        return self._info
 
     @property
     def areas(self):
@@ -46,6 +52,7 @@ class SpcWebGateway:
 
     async def async_load_parameters(self):
         """Fetch area and zone info from SPC to initialize."""
+        self._info = await self._async_get_data('panel')
         zones = await self._async_get_data('zone')
         areas = await self._async_get_data('area')
 
@@ -141,4 +148,7 @@ class SpcWebGateway:
         elif id:
             return data['data'][resource]
 
-        return [item for item in data['data'][resource]]
+        if isinstance(data['data'][resource], list):  
+            return [item for item in data['data'][resource]]
+
+        return data['data'][resource]

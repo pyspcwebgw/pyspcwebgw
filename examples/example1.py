@@ -1,9 +1,8 @@
-import logging
 import asyncio
 
 import aiohttp
 from pyspcwebgw import SpcWebGateway
-from pyspcwebgw.const import AreaMode
+
 
 API_URL = 'http://192.168.1.10:8088'
 WS_URL = 'ws://192.168.1.10:8088'
@@ -24,6 +23,10 @@ async def init(loop):
     if result is False:
         print('Failed to connect to SPC Web Gateway.')
         exit(1)
+
+    # Print basic info about the panel
+    print(f"Connected to SPC {spc.info['variant']}, serial no "
+          f"{spc.info['sn']} running firmware {spc.info['version']}.")
 
     # Connect the websocket
     spc.start()

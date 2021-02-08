@@ -32,6 +32,10 @@ class SpcShell(Cmd):
         for area in self._spc.areas.values():
             print(area)
 
+    def do_info(self, arg):
+        "Print basic panel info."
+        print(self._spc.info)
+
     def _print_zones(self, area_id):
         for zone in self._spc.areas[area_id].zones:
             print(zone)
