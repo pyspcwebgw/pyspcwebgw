@@ -1,7 +1,7 @@
 import logging
 
-from pyspcwebgw.const import AreaMode
-from pyspcwebgw.utils import _load_enum
+from .const import AreaMode
+from .utils import _load_enum
 
 _LOGGER = logging.getLogger(__name__)
 
