@@ -122,7 +122,7 @@ async def test_alternate_area_mode_update_callback(spc, event_loop):
             pytest.fail('invalid entity in callback')
         if entity.id == '1' and entity.mode != AreaMode.FULL_SET:
             pytest.fail("Entity data does not match expectation")
-        if entity.id == '3' and entity.mode != AreaMode.PART_SET_B:
+        if entity.id == '3' and entity.mode != AreaMode.PART_SET_A:
             pytest.fail("Entity data does not match expectation")
 
     msg = {'data': {'sia': {'sia_code': 'CL', 'sia_address': '9999'}}}
