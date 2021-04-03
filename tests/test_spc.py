@@ -31,6 +31,12 @@ area_update = """{"status":"success","data":{"area":[{"id":"1","name":"Huset",
     "last_unset_user_id":"1","last_unset_user_name":"Pelle",
     "last_alarm":"1534372056","not_ready_set":"1011"}]}}"""
 
+area_update_2 = """{"status":"success","data":{"area":[{"id":"1","name":"Garage",
+    "mode":"1","last_set_time":"1534431659","last_set_user_id":"9998",
+    "last_set_user_name":"Lisa","last_unset_time":"1534435693",
+    "last_unset_user_id":"1","last_unset_user_name":"Pelle",
+    "last_alarm":"1534372056","not_ready_set":"1011"}]}}"""
+
 zones = """{"status":"success","data":{"zone":[{"id":"1","type":"3",
     "zone_name":"Kitchen smoke","area":"1","area_name":"House","input":"0",
     "logic_input":"0","status":"0","proc_state":"0","inhibit_allowed":"1",
@@ -65,6 +71,7 @@ async def spc(event_loop, session):
         m.get('http://localhost/spc/panel', body=info)
         m.get('http://localhost/spc/area', body=areas)
         m.get('http://localhost/spc/area/1', body=area_update)
+        m.get('http://localhost/spc/area/3', body=area_update_2)
         m.get('http://localhost/spc/zone', body=zones)
         m.get('http://localhost/spc/zone/3', body=zone_update)
         m.put('http://localhost/spc/area/1/set',
@@ -107,6 +114,22 @@ async def test_area_mode_update_callback(spc, event_loop):
     await spc.spc._async_ws_handler(data=msg)
     assert ('GET', URL('http://localhost/spc/area/1')) in spc.mock.requests
 
+
+@pytest.mark.asyncio
+async def test_alternate_area_mode_update_callback(spc, event_loop):
+    async def callback(entity):
+        if not isinstance(entity, Area):
+            pytest.fail('invalid entity in callback')
+        if entity.id == '1' and entity.mode != AreaMode.FULL_SET:
+            pytest.fail("Entity data does not match expectation")
+        if entity.id == '3' and entity.mode != AreaMode.PART_SET_B:
+            pytest.fail("Entity data does not match expectation")
+
+    msg = {'data': {'sia': {'sia_code': 'CL', 'sia_address': '9999'}}}
+    spc.spc._async_callback = callback
+    await spc.spc._async_ws_handler(data=msg)
+    assert ('GET', URL('http://localhost/spc/area/1')) in spc.mock.requests
+    assert ('GET', URL('http://localhost/spc/area/3')) in spc.mock.requests
 
 @pytest.mark.asyncio
 async def test_area_alarm_triggered(spc, event_loop):

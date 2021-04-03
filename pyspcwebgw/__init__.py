@@ -99,23 +99,31 @@ class SpcWebGateway:
         _LOGGER.debug("SIA code is %s for ID %s", sia_code, spc_id)
 
         if sia_code in Area.SUPPORTED_SIA_CODES:
-            entity = self._areas.get(spc_id, None)
+            entities = [self._areas.get(spc_id, None)]
             resource = 'area'
         elif sia_code in Zone.SUPPORTED_SIA_CODES:
-            entity = self._zones.get(spc_id, None)
+            entities = [self._zones.get(spc_id, None)]
             resource = 'zone'
+        elif sia_code in ('CL', 'OP'):
+            # workaround for area mode change update in certain firmwares
+            # sia_code is in fact the user performing the change so
+            # refresh all areas
+            entities = self._areas.values()
+            resource = 'area'
         else:
             _LOGGER.debug("Not interested in SIA code %s", sia_code)
             return
-        if not entity:
+
+        if not entities:
             _LOGGER.error("Received message for unregistered ID %s", spc_id)
             return
 
-        data = await self._async_get_data(resource, entity.id)
-        entity.update(data, sia_code)
+        for entity in entities:
+            data = await self._async_get_data(resource, entity.id)
+            entity.update(data, sia_code)
 
-        if self._async_callback:
-            ensure_future(self._async_callback(entity))
+            if self._async_callback:
+                ensure_future(self._async_callback(entity))
 
     async def _async_get_data(self, resource, id=None):
         """Get the data from the resource."""
