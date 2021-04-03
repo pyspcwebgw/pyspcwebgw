@@ -50,6 +50,11 @@ class Zone:
     def update(self, spc_zone, sia_code=None):
         _LOGGER.debug("Update zone %s", self.id)
 
-        self._input = _load_enum(ZoneInput, spc_zone['input'])
         self._type = _load_enum(ZoneType, spc_zone['type'])
         self._status = _load_enum(ZoneStatus, spc_zone['status'])
+
+        if sia_code == 'ZO' and spc_zone['input'] == ZoneInput.CLOSED:
+            # work around race condition for wireless sensors
+            self._input = ZoneInput.OPEN
+        else:
+            self._input = _load_enum(ZoneInput, spc_zone['input'])
