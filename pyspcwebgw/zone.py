@@ -53,8 +53,10 @@ class Zone:
         self._type = _load_enum(ZoneType, spc_zone['type'])
         self._status = _load_enum(ZoneStatus, spc_zone['status'])
 
-        if sia_code == 'ZO' and spc_zone['input'] == ZoneInput.CLOSED:
+        input = _load_enum(ZoneInput, spc_zone['input'])
+        
+        if sia_code == 'ZO' and input == ZoneInput.CLOSED:
             # work around race condition for wireless sensors
-            self._input = ZoneInput.OPEN
-        else:
-            self._input = _load_enum(ZoneInput, spc_zone['input'])
+            input = ZoneInput.OPEN
+        
+        self._input = input

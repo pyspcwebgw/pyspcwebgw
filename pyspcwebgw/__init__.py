@@ -1,7 +1,7 @@
 """Python wrapper for the Lundix SPC Web Gateway REST API."""
+import asyncio
 import logging
 from urllib.parse import urljoin
-from asyncio import ensure_future
 
 from .area import Area
 from .zone import Zone
@@ -118,12 +118,16 @@ class SpcWebGateway:
             _LOGGER.error("Received message for unregistered ID %s", spc_id)
             return
 
+        tasks = []
+
         for entity in entities:
             data = await self._async_get_data(resource, entity.id)
             entity.update(data, sia_code)
 
             if self._async_callback:
-                ensure_future(self._async_callback(entity))
+                tasks.append(asyncio.create_task(self._async_callback(entity)))
+
+        return tasks
 
     async def _async_get_data(self, resource, id=None):
         """Get the data from the resource."""
