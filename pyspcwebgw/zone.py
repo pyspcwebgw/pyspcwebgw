@@ -47,7 +47,7 @@ class Zone:
     def area(self):
         return self._area
 
-    def update(self, spc_zone, sia_code=None):
+    def update(self, spc_zone, sia_code=None, sia_description=None):
         _LOGGER.debug("Update zone %s", self.id)
 
         self._type = _load_enum(ZoneType, spc_zone['type'])

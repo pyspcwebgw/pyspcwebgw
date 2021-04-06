@@ -44,7 +44,7 @@ class Area:
     def last_changed_by(self):
         return self._last_changed_by
 
-    def update(self, spc_area, sia_code=None):
+    def update(self, spc_area, sia_code=None, sia_description=None):
         _LOGGER.debug("Update area %s", self.id)
 
         self._mode = _load_enum(AreaMode, spc_area['mode'])
@@ -53,5 +53,9 @@ class Area:
             self._last_changed_by = spc_area.get('last_unset_user_name', 'N/A')
         elif self._mode == AreaMode.FULL_SET:
             self._last_changed_by = spc_area.get('last_set_user_name', 'N/A')
+        # If PartSet, we must get the changed by User from the second part of the sia_description
+        # because this is not provided by the EDP protocol
+        elif sia_code == 'NL':
+            self._last_changed_by = sia_description.split('¦')[1] #"Area_name¦User_name¦Used_ID"
         else:
             self._last_changed_by = 'N/A'
