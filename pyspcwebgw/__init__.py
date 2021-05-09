@@ -56,8 +56,13 @@ class SpcWebGateway:
         zones = await self._async_get_data('zone')
         areas = await self._async_get_data('area')
 
+        # This does not detect when single area system is present
         if not zones or not areas:
             return False
+
+        # Work-around for single area, to rewrap as a list
+        if "area_id" in areas:
+            areas=[areas]
 
         for spc_area in areas:
             area = Area(self, spc_area)
