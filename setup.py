@@ -13,7 +13,7 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-VERSION = '0.5.0'
+VERSION = '0.6.0'
 DOWNLOAD_URL = \
     'https://github.com/mbrrg/pyspcwebgw/archive/{}.zip'.format(VERSION)
 
@@ -29,9 +29,8 @@ setup(
     license='MIT',
     url='https://github.com/mbrrg/pyspcwebgw',
     download_url=DOWNLOAD_URL,
-    install_requires=['aiohttp', 'asynccmd'],
-    python_requires='>=3.6',
-    scripts=['scripts/spcwebgw-console'],
+    install_requires=['aiohttp'],
+    python_requires='>=3.7',
     keywords=['spc', 'vanderbilt', 'web gateway'],
     classifiers=[
         'Natural Language :: English',
