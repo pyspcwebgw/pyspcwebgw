@@ -50,6 +50,11 @@ class SpcWebGateway:
                                       async_callback=self._async_ws_handler)
         self._websocket.start()
 
+    def stop(self):
+        """Disconnect websocket to SPC Web Gateway."""
+        self._websocket.stop()
+        self._websocket = None
+
     async def async_load_parameters(self):
         """Fetch area and zone info from SPC to initialize."""
         self._info = await self._async_get_data('panel')
