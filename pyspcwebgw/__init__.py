@@ -138,7 +138,7 @@ class SpcWebGateway:
         elif id:
             return data['data'][resource]
 
-        if isinstance(data['data'][resource], list):  
+        if isinstance(data['data'][resource], list):
             return [item for item in data['data'][resource]]
 
         return data['data'][resource]
