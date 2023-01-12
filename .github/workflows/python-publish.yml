@@ -16,15 +16,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
+    - name: Install and configure Poetry
       run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel twine
-      - name: Install and configure Poetry
-        run: |
-          pip install poetry
-          poetry config pypi-token.pypi "${{ secrets.PYPI_TOKEN }}"
-      - name: Publish package
-        run: poetry publish --build
+        pip install poetry
+        poetry config pypi-token.pypi "${{ secrets.PYPI_TOKEN }}"
+    - name: Publish package
+      run: poetry publish --build
