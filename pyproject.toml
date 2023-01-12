@@ -33,6 +33,7 @@ testpaths = ["tests"]
 [tool.pylama]
 format = "pylint"
 ignore = "W0611,C901"
+skip = ".venv"
 
 [tool.flake8]
 exclude = [
