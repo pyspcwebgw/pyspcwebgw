@@ -1,13 +1,13 @@
 """Python wrapper for the Lundix SPC Web Gateway REST API."""
 import logging
-from urllib.parse import urljoin
 from asyncio import ensure_future
+from urllib.parse import urljoin
 
 from .area import Area
-from .zone import Zone
 from .const import AreaMode
 from .utils import async_request
 from .websocket import AIOWSClient
+from .zone import Zone
 
 _LOGGER = logging.getLogger(__name__)
 

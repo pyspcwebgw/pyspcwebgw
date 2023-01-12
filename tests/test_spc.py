@@ -7,9 +7,8 @@ import pytest_asyncio
 from aioresponses import aioresponses
 from aioresponses.compat import URL
 
-from pyspcwebgw import SpcWebGateway, Area, Zone
+from pyspcwebgw import Area, SpcWebGateway, Zone
 from pyspcwebgw.const import AreaMode, ZoneInput
-
 
 info = """{"status":"success","data":{"panel":{"cfgtime": "1593425759",
     "device-id": "1", "hw_ver_major": "1",

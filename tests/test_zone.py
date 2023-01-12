@@ -1,5 +1,5 @@
 from pyspcwebgw import Zone
-from pyspcwebgw.const import ZoneType, ZoneStatus, ZoneInput
+from pyspcwebgw.const import ZoneInput, ZoneStatus, ZoneType
 
 ZONES = [{
     'id': '1',

@@ -1,6 +1,6 @@
 import logging
 
-from pyspcwebgw.const import ZoneInput, ZoneType, ZoneStatus
+from pyspcwebgw.const import ZoneInput, ZoneStatus, ZoneType
 from pyspcwebgw.utils import _load_enum
 
 _LOGGER = logging.getLogger(__name__)

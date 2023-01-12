@@ -1,8 +1,8 @@
 import asyncio
 
 import aiohttp
-from pyspcwebgw import SpcWebGateway
 
+from pyspcwebgw import SpcWebGateway
 
 API_URL = 'http://192.168.1.10:8088'
 WS_URL = 'ws://192.168.1.10:8088'
