@@ -62,23 +62,19 @@ async def spc(event_loop, session):
 
     """HTTP client mock for areas and zones."""
     with aioresponses() as m:
-        m.get('http://localhost/spc/panel', body=info)
-        m.get('http://localhost/spc/area', body=areas)
-        m.get('http://localhost/spc/area/1', body=area_update)
-        m.get('http://localhost/spc/zone', body=zones)
-        m.get('http://localhost/spc/zone/3', body=zone_update)
-        m.put('http://localhost/spc/area/1/set',
-              payload={'status': 'success'})
-        m.put('http://localhost/spc/area/1/unset',
-              payload={'status': 'success'})
-        m.put('http://localhost/spc/area/1/set_a',
-              payload={'status': 'success'})
-        m.put('http://localhost/spc/area/1/set_b',
-              payload={'status': 'success'})
+        m.get("http://localhost/spc/panel", body=info)
+        m.get("http://localhost/spc/area", body=areas)
+        m.get("http://localhost/spc/area/1", body=area_update)
+        m.get("http://localhost/spc/zone", body=zones)
+        m.get("http://localhost/spc/zone/3", body=zone_update)
+        m.put("http://localhost/spc/area/1/set", payload={"status": "success"})
+        m.put("http://localhost/spc/area/1/unset", payload={"status": "success"})
+        m.put("http://localhost/spc/area/1/set_a", payload={"status": "success"})
+        m.put("http://localhost/spc/area/1/set_b", payload={"status": "success"})
 
-        spc = SpcWebGateway(event_loop, session,
-                            'http://localhost/',
-                            'ws://localhost/', None)
+        spc = SpcWebGateway(
+            event_loop, session, "http://localhost/", "ws://localhost/", None
+        )
 
         await spc.async_load_parameters()
         yield SpcAndResponseMock(spc, m)
@@ -87,14 +83,14 @@ async def spc(event_loop, session):
 @pytest_asyncio.fixture
 def test_parse_areas(spc):
     assert len(spc.spc.areas) == 2
-    assert spc.spc.areas['1'].name == 'House'
-    assert spc.spc.areas['3'].name == 'Garage'
+    assert spc.spc.areas["1"].name == "House"
+    assert spc.spc.areas["3"].name == "Garage"
 
 
 @pytest_asyncio.fixture
 def test_parse_area_zones(spc):
-    assert len(spc.spc.areas['1'].zones) == 2
-    assert len(spc.spc.areas['3'].zones) == 1
+    assert len(spc.spc.areas["1"].zones) == 2
+    assert len(spc.spc.areas["3"].zones) == 1
 
 
 @pytest_asyncio.fixture
@@ -102,13 +98,13 @@ def test_parse_area_zones(spc):
 async def test_area_mode_update_callback(spc, event_loop):
     async def callback(entity):
         if not isinstance(entity, Area) or entity.mode != AreaMode.FULL_SET:
-            pytest.fail('invalid entity in callback')
+            pytest.fail("invalid entity in callback")
 
-    msg = {'data': {'sia': {'sia_code': 'CG', 'sia_address': '1'}}}
-    assert spc.spc.areas['1'].mode == AreaMode.UNSET
+    msg = {"data": {"sia": {"sia_code": "CG", "sia_address": "1"}}}
+    assert spc.spc.areas["1"].mode == AreaMode.UNSET
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
-    assert ('GET', URL('http://localhost/spc/area/1')) in spc.mock.requests
+    assert ("GET", URL("http://localhost/spc/area/1")) in spc.mock.requests
 
 
 @pytest_asyncio.fixture
@@ -116,10 +112,10 @@ async def test_area_mode_update_callback(spc, event_loop):
 async def test_area_alarm_triggered(spc, event_loop):
     async def callback(entity):
         if not isinstance(entity, Area) or not entity.verified_alarm:
-            pytest.fail('invalid entity in callback')
+            pytest.fail("invalid entity in callback")
 
-    msg = {'data': {'sia': {'sia_code': 'BV', 'sia_address': '1'}}}
-    assert not spc.spc.areas['1'].verified_alarm
+    msg = {"data": {"sia": {"sia_code": "BV", "sia_address": "1"}}}
+    assert not spc.spc.areas["1"].verified_alarm
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
 
@@ -129,24 +125,27 @@ async def test_area_alarm_triggered(spc, event_loop):
 async def test_zone_input_update_callback(spc, event_loop):
     async def callback(entity):
         if not isinstance(entity, Zone) or entity.input != ZoneInput.OPEN:
-            pytest.fail('invalid entity in callback')
+            pytest.fail("invalid entity in callback")
 
-    msg = {'data': {'sia': {'sia_code': 'ZO', 'sia_address': '3'}}}
-    assert spc.spc.areas['3'].zones[0].input == ZoneInput.CLOSED
+    msg = {"data": {"sia": {"sia_code": "ZO", "sia_address": "3"}}}
+    assert spc.spc.areas["3"].zones[0].input == ZoneInput.CLOSED
     spc.spc._async_callback = callback
     await spc.spc._async_ws_handler(data=msg)
-    assert ('GET', URL('http://localhost/spc/zone/3')) in spc.mock.requests
+    assert ("GET", URL("http://localhost/spc/zone/3")) in spc.mock.requests
 
 
 @pytest_asyncio.fixture
 @pytest.mark.asyncio
-@pytest.mark.parametrize("url_part,mode", [
-    ('set', AreaMode.FULL_SET),
-    ('unset', AreaMode.UNSET),
-    ('set_a', AreaMode.PART_SET_A),
-    ('set_b', AreaMode.PART_SET_B)
-])
+@pytest.mark.parametrize(
+    "url_part,mode",
+    [
+        ("set", AreaMode.FULL_SET),
+        ("unset", AreaMode.UNSET),
+        ("set_a", AreaMode.PART_SET_A),
+        ("set_b", AreaMode.PART_SET_B),
+    ],
+)
 async def test_change_area_mode(spc, url_part, mode):
-    await spc.spc.change_mode(spc.spc.areas['1'], mode)
-    url = 'http://localhost/spc/area/1/{}'.format(url_part)
-    assert ('PUT', URL(url)) in spc.mock.requests
+    await spc.spc.change_mode(spc.spc.areas["1"], mode)
+    url = "http://localhost/spc/area/1/{}".format(url_part)
+    assert ("PUT", URL(url)) in spc.mock.requests
