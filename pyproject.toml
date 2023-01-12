@@ -21,6 +21,7 @@ aioresponses = "^0.7.4"
 pytest = "^7.2.0"
 pytest-asyncio = "^0.20.3"
 flake8 = "^6.0.0"
+pylama = {version = "^8.4.1", extras=["toml"]}
 
 [build-system]
 requires = ["poetry-core"]
@@ -28,6 +29,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest]
 testpaths = ["tests"]
+
+[tool.pylama]
+format = "pylint"
+ignore = "W0611,C901"
 
 [tool.flake8]
 exclude = [
