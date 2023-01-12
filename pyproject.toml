@@ -22,6 +22,7 @@ pytest = "^7.2.0"
 pytest-asyncio = "^0.20.3"
 flake8 = "^6.0.0"
 pylama = {version = "^8.4.1", extras=["toml"]}
+flake8-pyproject = "^1.2.2"
 
 [build-system]
 requires = ["poetry-core"]
@@ -33,17 +34,7 @@ testpaths = ["tests"]
 [tool.pylama]
 format = "pylint"
 ignore = "W0611,C901"
-skip = ".venv"
+skip = ".venv/*"
 
 [tool.flake8]
-exclude = [
-    ".venv",
-    ".git",
-    ".tox",
-    "docs",
-    "venv",
-    "bin",
-    "lib",
-    "deps",
-    "build",
-]
+exclude = [".venv"]
