@@ -39,6 +39,18 @@ class ZoneType(Enum):
     LOCK_SUPERVISION = '16'
     SEISMIC = '17'
     ALL_OKAY = '18'
+    HOLDUP_FAULT = '19'
+    WARNING_FAULT = '20'
+    SETTING_AUTHORISATION = '21'
+    LOCK_ELEMENT = '22'
+    GLASSBREAK = '23'
+    WATER = '24'
+    HEAT = '25'
+    FRIDGE_FREEZER = '26'
+    GAS = '27'
+    SPRINKLER = '28'
+    CO = '29'
+    ENTRY_EXIT_2 = '30'
 
 
 class ZoneStatus(Enum):

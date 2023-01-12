@@ -25,6 +25,7 @@ class AIOWSClient:
         self._async_callback = async_callback
         self._data = None
         self._state = None
+        self._task = None
 
     @property
     def data(self):
@@ -44,7 +45,7 @@ class AIOWSClient:
     def start(self):
         if self.state != STATE_RUNNING:
             self.state = STATE_STARTING
-        self._loop.create_task(self.running())
+        self._task = self._loop.create_task(self.running())
 
     async def running(self):
         """Start websocket connection."""
@@ -74,6 +75,8 @@ class AIOWSClient:
     def stop(self):
         """Close websocket connection."""
         self.state = STATE_STOPPED
+        if self._task:
+            self._task.cancel()
 
     def retry(self):
         """Retry to connect to SPC."""
