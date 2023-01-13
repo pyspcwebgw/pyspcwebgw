@@ -3,6 +3,7 @@ import asyncio
 
 import aiohttp
 import pytest
+import pytest_asyncio
 from aioresponses import aioresponses
 from aioresponses.compat import URL
 
@@ -100,17 +101,20 @@ async def spc(event_loop, session):
         yield SpcAndResponseMock(spc, m)
 
 
+@pytest_asyncio.fixture
 def test_parse_areas(spc):
     assert len(spc.spc.areas) == 2
     assert spc.spc.areas['1'].name == 'House'
     assert spc.spc.areas['3'].name == 'Garage'
 
 
+@pytest_asyncio.fixture
 def test_parse_area_zones(spc):
     assert len(spc.spc.areas['1'].zones) == 2
     assert len(spc.spc.areas['3'].zones) == 2
 
 
+@pytest_asyncio.fixture
 @pytest.mark.asyncio
 async def test_area_mode_update_callback(spc, event_loop):
     async def callback(entity):
@@ -143,6 +147,7 @@ async def test_alternate_area_mode_update_callback(spc, event_loop):
     await asyncio.gather(*tasks)
 
 
+@pytest_asyncio.fixture
 @pytest.mark.asyncio
 async def test_area_alarm_triggered(spc, event_loop):
     async def callback(entity):
@@ -156,6 +161,7 @@ async def test_area_alarm_triggered(spc, event_loop):
     await asyncio.gather(*tasks)
 
 
+@pytest_asyncio.fixture
 @pytest.mark.asyncio
 async def test_zone_input_update_callback(spc, event_loop):
     async def callback(entity):
@@ -170,6 +176,7 @@ async def test_zone_input_update_callback(spc, event_loop):
     await asyncio.gather(*tasks)
 
 
+@pytest_asyncio.fixture
 @pytest.mark.asyncio
 @pytest.mark.parametrize("url_part,mode", [
     ('set', AreaMode.FULL_SET),
