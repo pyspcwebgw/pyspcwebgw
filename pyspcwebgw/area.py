@@ -1,7 +1,7 @@
 import logging
 
-from pyspcwebgw.const import AreaMode
-from pyspcwebgw.utils import _load_enum
+from .const import AreaMode
+from .utils import _load_enum
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,5 +51,7 @@ class Area:
         self._verified_alarm = sia_code == 'BV'
         if self._mode == AreaMode.UNSET:
             self._last_changed_by = spc_area.get('last_unset_user_name', 'N/A')
-        else:
+        elif self._mode == AreaMode.FULL_SET:
             self._last_changed_by = spc_area.get('last_set_user_name', 'N/A')
+        else:
+            self._last_changed_by = 'N/A'
