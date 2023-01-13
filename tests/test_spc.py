@@ -124,6 +124,7 @@ async def test_area_mode_update_callback(spc, event_loop):
     await asyncio.gather(*tasks)
 
 
+@pytest_asyncio.fixture
 @pytest.mark.asyncio
 async def test_alternate_area_mode_update_callback(spc, event_loop):
     async def callback(entity):
@@ -188,6 +189,7 @@ async def test_change_area_mode(spc, url_part, mode):
     assert ("PUT", URL(url)) in spc.mock.requests
 
 
+@pytest_asyncio.fixture
 @pytest.mark.asyncio
 async def test_pir_workaround(spc, event_loop):
     async def callback(entity):
