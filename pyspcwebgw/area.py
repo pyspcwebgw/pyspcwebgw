@@ -12,10 +12,11 @@ class Area:
 
     def __init__(self, gateway, spc_area):
         self._gateway = gateway
-        self._id = spc_area['id']
-        self._name = spc_area['name']
         self._verified_alarm = False
         self.zones = None
+
+        self._id = spc_area.get('id',spc_area.get('area_id'))
+        self._name = spc_area.get('name',spc_area.get('area_name'))
 
         self.update(spc_area)
 

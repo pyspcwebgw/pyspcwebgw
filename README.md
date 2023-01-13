@@ -8,4 +8,18 @@ Python library for communicating with [Vanderbilt SPC alarm systems](https://van
 
 ### Library
 
+- ```areas```. List all available areas.
+- ```zones```. List all available zones or only zones in a specific area.
+- ```full_set```. Full set an area.
+- ```part_set_x```. Part set x an area.
+- ```unset```. Unset an area.
+- ```debug```. Toggle debug output.
+
+## Flex Gateway
+
+While initially written for SPC Web Gateway you can use this for SPC Flex Gateway as well.
+
+There is a (big!) security caveat though, you can't enable login for `get_user` in the Flex Gateway `config.xml`.
+
+=======
 To use the library in your own application see the example file.
