@@ -22,8 +22,9 @@ async def async_request(session, url, **kwargs):
             _LOGGER.debug("Sending %s to %s", kwargs, url)
             response = await session(url, **kwargs)
         if response.status != 200:
-            _LOGGER.error("HTTP status %d, response %s.",
-                          response.status, (await response.text()))
+            _LOGGER.error(
+                "HTTP status %d, response %s.", response.status, (await response.text())
+            )
             return False
         result = await response.json()
     except asyncio.TimeoutError:
@@ -35,9 +36,8 @@ async def async_request(session, url, **kwargs):
     else:
         _LOGGER.debug("HTTP request response: %s", result)
 
-    if result['status'] != 'success':
-        _LOGGER.error(
-            "SPC Web Gateway call unsuccessful for resource: %s", url)
+    if result["status"] != "success":
+        _LOGGER.error("SPC Web Gateway call unsuccessful for resource: %s", url)
         return False
 
     return result
