@@ -53,11 +53,13 @@ class Area:
         if self._mode == AreaMode.UNSET:
             self._last_changed_by = spc_area.get("last_unset_user_name", "N/A")
         elif self._mode == AreaMode.FULL_SET:
-            self._last_changed_by = spc_area.get('last_set_user_name', 'N/A')
-        # If PartSet, we must get the changed by User from the second part of the sia_description
-        # because this is not provided by the EDP protocol
+            self._last_changed_by = spc_area.get("last_set_user_name", "N/A")
+        # If PART_SET, last_changed_by user is not provided by the EDP protocol.
+        # We can instead get the last_changed_by user from the second part of the sia_description.
+        # sia_description should in this case contain "Area_name¦User_name¦User_ID".
         # Added check so SIA description has expected length 3, since there is no user if a "shortcut button" is used for arming.
-        elif sia_code == 'NL' and len(sia_description.split('¦')) == 3:
-            self._last_changed_by = sia_description.split('¦')[1] #"Area_name¦User_name¦Used_ID"
+        elif sia_code == "NL" and len(sia_description.split("¦")) == 3:
+            self._last_changed_by = sia_description.split("¦")[1]
         else:
             self._last_changed_by = "N/A"
+            
