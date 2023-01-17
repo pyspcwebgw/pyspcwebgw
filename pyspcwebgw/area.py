@@ -62,4 +62,3 @@ class Area:
             self._last_changed_by = sia_description.split("¦")[1]
         else:
             self._last_changed_by = "N/A"
-            
