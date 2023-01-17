@@ -1,4 +1,0 @@
--e .
-aioresponses
-pytest
-pytest-asyncio
