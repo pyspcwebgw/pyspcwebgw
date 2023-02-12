@@ -105,7 +105,7 @@ class SpcWebGateway:
         sia_message = data["data"]["sia"]
         spc_id = sia_message["sia_address"]
         sia_code = sia_message["sia_code"]
-        # sia_description contains different info in different cases, 
+        # sia_description contains different info in different cases,
         # needed to get last_changed_by user for PART_SET (sia_code NL)
         sia_description = sia_message["description"]
 
