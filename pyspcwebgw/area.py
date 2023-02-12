@@ -57,7 +57,8 @@ class Area:
         # If PART_SET, last_changed_by user is not provided by the EDP protocol.
         # We can instead get the last_changed_by user from the second part of the sia_description.
         # sia_description should in this case contain "Area_name¦User_name¦User_ID".
-        # Added check so SIA description has expected length 3, since there is no user if a "shortcut button" is used for arming.
+        # Added check so SIA description has expected length 3, 
+        # since there is no user if a "shortcut button" is used for arming.
         elif sia_code == "NL" and len(sia_description.split("¦")) == 3:
             self._last_changed_by = sia_description.split("¦")[1]
         else:
