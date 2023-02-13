@@ -105,6 +105,9 @@ class SpcWebGateway:
         sia_message = data["data"]["sia"]
         spc_id = sia_message["sia_address"]
         sia_code = sia_message["sia_code"]
+        # sia_description contains different info in different cases,
+        # needed to get last_changed_by user for PART_SET (sia_code NL)
+        sia_description = sia_message["description"]
 
         _LOGGER.debug("SIA code is %s for ID %s", sia_code, spc_id)
 
@@ -132,7 +135,7 @@ class SpcWebGateway:
 
         for entity in entities:
             data = await self._async_get_data(resource, entity.id)
-            entity.update(data, sia_code)
+            entity.update(data, sia_code, sia_description)
 
             if self._async_callback:
                 tasks.append(asyncio.create_task(self._async_callback(entity)))
