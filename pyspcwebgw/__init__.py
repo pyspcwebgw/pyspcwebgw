@@ -24,6 +24,7 @@ class SpcWebGateway:
         self._info = None
         self._areas = {}
         self._zones = {}
+        self._ethernet = {}
         self._websocket = None
         self._async_callback = async_callback
 
@@ -41,6 +42,11 @@ class SpcWebGateway:
     def zones(self):
         """Retrieve all available zones."""
         return self._zones
+
+    @property
+    def ethernet(self):
+        """Retrieve all ethernet information."""
+        return self._ethernet
 
     def start(self):
         """Connect websocket to SPC Web Gateway."""
@@ -60,6 +66,8 @@ class SpcWebGateway:
     async def async_load_parameters(self):
         """Fetch area and zone info from SPC to initialize."""
         self._info = await self._async_get_data("panel")
+        self._ethernet = await self._async_get_data("ethernet")
+
         zones = await self._async_get_data("zone")
         areas = await self._async_get_data("area")
 
