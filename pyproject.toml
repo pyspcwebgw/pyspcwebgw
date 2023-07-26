@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyspcwebgw"
-version = "0.6.0"
+version = "0.7.0"
 description = "A Python library for communicating with SPC Web Gateway."
 authors = ["Martin Berg", "Jakob Schlyter <jakob@kirei.se>"]
 license = "MIT"
