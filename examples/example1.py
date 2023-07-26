@@ -29,6 +29,7 @@ async def init(loop):
     print(
         f"Connected to SPC {spc.info['variant']}, serial no "
         f"{spc.info['sn']} running firmware {spc.info['version']}."
+        f"available at {spc.ethernet['ip_address']}"
     )
 
     # Connect the websocket
