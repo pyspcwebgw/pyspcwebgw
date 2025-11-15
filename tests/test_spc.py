@@ -1,4 +1,5 @@
 """Tests for Vanderbilt SPC component."""
+
 import asyncio
 
 import aiohttp

@@ -1,4 +1,5 @@
 """Python wrapper for the Lundix SPC Web Gateway REST API."""
+
 import asyncio
 import logging
 from urllib.parse import urljoin
