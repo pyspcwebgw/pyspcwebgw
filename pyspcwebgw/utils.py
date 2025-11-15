@@ -2,7 +2,6 @@ import asyncio
 import logging
 
 import aiohttp
-import async_timeout
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ def _load_enum(enum, value, default=None):
 async def async_request(session, url, **kwargs):
     """Do a web request and manage response."""
     try:
-        with async_timeout.timeout(10):
+        async with asyncio.timeout(10):
             _LOGGER.debug("Sending %s to %s", kwargs, url)
             response = await session(url, **kwargs)
         if response.status != 200:
