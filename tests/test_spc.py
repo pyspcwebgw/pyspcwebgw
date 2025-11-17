@@ -122,7 +122,13 @@ async def test_area_mode_update_callback(spc, event_loop):
             pytest.fail("invalid entity in callback")
 
     msg = {
-        "data": {"sia": {"sia_code": "CG", "sia_address": "1", "description": "desc"}}
+        "data": {
+            "sia": {
+                "sia_code": "CG",
+                "sia_address": "1",
+                "description": "desc",
+            }
+        }
     }
     assert spc.spc.areas["1"].mode == AreaMode.UNSET
     spc.spc._async_callback = callback
